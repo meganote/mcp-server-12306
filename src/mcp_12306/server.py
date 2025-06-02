@@ -815,7 +815,7 @@ async def get_train_route_stations_validated(args: dict) -> list:
     # 获取cookie并查询经停站，保持同一client实例
     import httpx
     url_init = "https://kyfw.12306.cn/otn/leftTicket/init"
-    url = "https://kyfw.12306.cn/lcquery/queryU"
+    url = "https://kyfw.12306.cn/otn/czxx/queryByTrainNo"
     headers = {
         "User-Agent": USER_AGENT,
         "Referer": "https://kyfw.12306.cn/otn/leftTicket/init",
@@ -830,26 +830,27 @@ async def get_train_route_stations_validated(args: dict) -> list:
         # 先访问init获取cookie
         await client.get(url_init, headers=headers)
         params = {
-            "train_date": train_date,
+            "train_no": train_no,
             "from_station_telecode": from_station_code,
             "to_station_telecode": to_station_code,
-            "middle_station": "",
-            "result_index": "0",
-            "can_query": "Y",
-            "isShowWZ": "N",
-            "purpose_codes": "00",
-            "channel": "E",
-            "train_no": train_no  # 仍然带上编号，部分线路需要
+            "depart_date": train_date
         }
         resp = await client.get(url, headers=headers, params=params)
         # 检查是否被302跳转
         if resp.status_code == 302 or "error.html" in str(resp.headers.get("location", "")):
             return [{"type": "text", "text": "❌ 12306反爬虫拦截（302跳转），请稍后重试或更换网络环境。"}]
-        try:
-            data = resp.json().get("data", {})
-            stations = data.get("data", [])
-        except Exception:
-            return [{"type": "text", "text": "❌ 12306反爬拦截或数据异常，请稍后重试"}]
+        data = resp.json().get("data", {})
+        stations = data.get("data", [])
+        # 兼容官方经停站接口返回的middleList结构（多段）
+        if not stations and "middleList" in data:
+            stations = []
+            for m in data["middleList"]:
+                if "fullList" in m:
+                    stations.extend(m["fullList"])
+        if not stations and "fullList" in data:
+            stations = data["fullList"]
+        if not stations and "route" in data:
+            stations = data["route"]
     if not stations:
         return [{"type": "text", "text": "❌ 未查到该车次经停站信息"}]
     # 输出时显示原始车次号和编号
@@ -858,7 +859,7 @@ async def get_train_route_stations_validated(args: dict) -> list:
         arr = s.get("arrive_time", "----")
         dep = s.get("start_time", "----")
         stopover = s.get("stopover_time", "----")
-        text += f"{s.get('station_no')}. {s.get('station_name')}  到达: {arr}  发车: {dep}  停留: {stopover}\n"
+        text += f"{s.get('from_station_no', s.get('station_no', '?'))}. {s.get('from_station_name', s.get('station_name', '?'))}  到达: {arr}  发车: {dep}  停留: {stopover}\n"
     return [{"type": "text", "text": text}]
 
 async def get_train_no_by_train_code_validated(args: dict) -> list:
