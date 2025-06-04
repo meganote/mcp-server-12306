@@ -7,7 +7,7 @@ name = "mcp-12306"
 version = "0.1.0"
 description = "MCP服务器用于12306车票查询"
 authors = [
-    {name = "Your Name", email = "your.email@example.com"}
+    {name = "Drfccv", email = "2713587802@qq.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.10"
