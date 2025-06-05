@@ -7,6 +7,7 @@ from datetime import datetime, date
 import datetime as dtmod
 from typing import Dict, List, Any, Optional
 import uuid
+import pytz
 
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse, Response
@@ -1138,8 +1139,18 @@ async def get_current_time_validated(args: dict) -> list:
         timezone_str = args.get("timezone", "Asia/Shanghai")
         date_format = args.get("format", "YYYY-MM-DD")
         
-        # 获取当前时间
-        now = datetime.now()
+        # 获取指定时区的当前时间
+        try:
+            tz = pytz.timezone(timezone_str)
+            now = datetime.now(tz)
+            utc_now = datetime.utcnow()
+        except pytz.exceptions.UnknownTimeZoneError:
+            # 如果时区无效，回退到Asia/Shanghai
+            tz = pytz.timezone("Asia/Shanghai")
+            now = datetime.now(tz)
+            utc_now = datetime.utcnow()
+            timezone_str = "Asia/Shanghai"
+        
         today = now.date()
         
         # 计算相对日期
@@ -1154,9 +1165,10 @@ async def get_current_time_validated(args: dict) -> list:
         tomorrow_weekday = weekdays[tomorrow.weekday()]
         
         # 构建输出文本
-        text = f"📅 **当前时间信息**\n\n"
-        text += f"🕐 **当前时间:** {now.strftime('%Y年%m月%d日 %H:%M:%S')}\n"
-        text += f"📆 **今天:** {today.strftime('%Y-%m-%d')} ({today_weekday})\n\n"
+        text = f"📅 **当前时间信息** ({timezone_str})\n\n"
+        text += f"🕐 **当前时间:** {now.strftime('%Y年%m月%d日 %H:%M:%S %Z')}\n"
+        text += f"📆 **今天:** {today.strftime('%Y-%m-%d')} ({today_weekday})\n"
+        text += f"🌐 **UTC时间:** {utc_now.strftime('%Y-%m-%d %H:%M:%S UTC')}\n\n"
         
         text += f"🔮 **常用相对日期:**\n"
         text += f"• **明天:** `{tomorrow.strftime('%Y-%m-%d')}` ({tomorrow_weekday})\n"
@@ -1180,7 +1192,7 @@ async def get_current_time_validated(args: dict) -> list:
         text += f"• 复制上面的日期格式（如 `{tomorrow.strftime('%Y-%m-%d')}`）到火车票查询中\n"
         text += f"• 12306系统支持提前14天购票\n"
         text += f"• 节假日和周末车票较为紧张，建议提前规划\n"
-        text += f"• 当前时区: {timezone_str}"
+        text += f"• 当前使用时区: {timezone_str}"
         
         return [{"type": "text", "text": text}]
         
