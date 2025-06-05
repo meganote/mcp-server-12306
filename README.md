@@ -6,7 +6,7 @@
 
 ## ✨ 项目简介
 
-12306 MCP Server 是一款基于 Model Context Protocol (MCP) 的高性能火车票查询后端，支持官方 12306 余票、车站、经停、换乘等多种查询，适配 AI/自动化/智能助手等场景。界面友好，易于集成，开箱即用。
+12306 MCP Server 是一款基于 Model Context Protocol (MCP) 的高性能火车票查询后端，支持官方 12306 余票、车站、经停、换乘查询以及智能时间工具，适配 AI/自动化/智能助手等场景。界面友好，易于集成，开箱即用。
 
 ---
 
@@ -15,7 +15,8 @@
 - 实时余票/车次/座席/时刻/换乘一站式查询
 - 全国车站信息管理与模糊搜索
 - 官方经停站、一次中转方案全支持
-- SSE流式协议，AI/前端无缝对接
+- 智能时间工具，支持相对日期计算，避免日期输入错误
+- Streamable HTTP传输协议，支持MCP 2025-03-26标准
 - FastAPI异步高性能，秒级响应
 - MCP标准，AI/自动化场景即插即用
 
@@ -72,7 +73,7 @@ cp .env.example .env
 {
   "mcpServers": {
     "12306": {
-      "url": "http://localhost:8000/sse"
+      "url": "http://localhost:8000/mcp"
     }
   }
 }
@@ -86,6 +87,7 @@ cp .env.example .env
 | get_station_info         | 获取车站详情（名称、代码、地理等） |
 | query_transfer           | 一次中转换乘方案，自动拼接最优中转 |
 | get_train_route_stations | 查询指定列车经停站及时刻表         |
+| get_current_time         | 获取当前时间与相对日期，帮助用户准确选择出行日期 |
 
 ---
 
@@ -98,6 +100,7 @@ cp .env.example .env
 - [get_station_info.md](./doc/get_station_info.md) — 获取车站详情
 - [query_transfer.md](./doc/query_transfer.md) — 一次中转换乘方案
 - [get_train_route_stations.md](./doc/get_train_route_stations.md) — 查询列车经停站
+- [get_current_time.md](./doc/get_current_time.md) — 获取当前时间与相对日期
 
 每个文档包含：
 - 工具功能说明
