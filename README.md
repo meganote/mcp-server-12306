@@ -95,12 +95,12 @@ cp .env.example .env
 
 本项目所有主流程工具的详细功能、实现与使用方法，均已收录于 [`/doc`](./doc) 目录下：
 
-- [query_tickets.md](./doc/query_tickets.md) — 余票/车次/座席/时刻一站式查询
-- [search_stations.md](./doc/search_stations.md) — 车站模糊搜索
-- [get_station_info.md](./doc/get_station_info.md) — 获取车站详情
-- [query_transfer.md](./doc/query_transfer.md) — 一次中转换乘方案
-- [get_train_route_stations.md](./doc/get_train_route_stations.md) — 查询列车经停站
-- [get_current_time.md](./doc/get_current_time.md) — 获取当前时间与相对日期
+- [query_tickets.md](./docs/query_tickets.md) — 余票/车次/座席/时刻一站式查询
+- [search_stations.md](./docs/search_stations.md) — 车站模糊搜索
+- [get_station_info.md](./docs/get_station_info.md) — 获取车站详情
+- [query_transfer.md](./docs/query_transfer.md) — 一次中转换乘方案
+- [get_train_route_stations.md](./docs/get_train_route_stations.md) — 查询列车经停站
+- [get_current_time.md](./docs/get_current_time.md) — 获取当前时间与相对日期
 
 每个文档包含：
 - 工具功能说明
