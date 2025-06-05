@@ -48,6 +48,17 @@ dev-dependencies = [
     "mypy>=1.6.0",
     "pre-commit>=3.5.0",
 ]
+index-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+
+# 或者配置多个源
+[[tool.uv.index]]
+name = "tsinghua"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true
+
+[[tool.uv.index]]
+name = "aliyun"
+url = "https://mirrors.aliyun.com/pypi/simple/"
 
 [project.scripts]
 mcp-12306 = "mcp_12306.server:main"
