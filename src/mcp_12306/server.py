@@ -382,26 +382,31 @@ async def mcp_endpoint_post(request: Request):
                 "result": {
                     "prompts": [
                         {
+                            "name": "查询余票",
                             "title": "查询余票",
                             "description": "查询某天某线路的余票信息",
                             "prompt": "查询明天北京到上海的高铁票"
                         },
                         {
+                            "name": "中转换乘",
                             "title": "中转换乘",
                             "description": "查找需要中转的车次方案",
                             "prompt": "查询北京到广州的中转换乘方案"
                         },
                         {
+                            "name": "车站模糊搜索",
                             "title": "车站模糊搜索",
                             "description": "输入拼音、简拼或三字码快速查找车站",
                             "prompt": "查找南昌的三字码"
                         },
                         {
+                            "name": "经停站查询",
                             "title": "经停站查询",
                             "description": "查询某车次的所有经停站和时刻表",
                             "prompt": "查询G1234的经停站"
                         },
                         {
+                            "name": "获取当前时间",
                             "title": "获取当前时间",
                             "description": "获取今天、明天、后天等常用日期",
                             "prompt": "现在的日期和明天的日期"
@@ -417,7 +422,33 @@ async def mcp_endpoint_post(request: Request):
                 "jsonrpc": "2.0",
                 "id": request_id,
                 "result": {
-                    "resources": []  # 可根据需要返回实际资源
+                    "resources": []  # 返回空数组，而不是带empty的对象
+                }
+            }
+            return JSONResponse(response)
+        # 新增 resources/templates/list 支持
+        elif method == "resources/templates/list":
+            logger.info("📋 Resources templates list requested")
+            response = {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {
+                    "templates": [
+                        {
+                            "id": "query_ticket_template",
+                            "name": "query_ticket_template",
+                            "title": "查询余票模板",
+                            "description": "快速查询某天某线路的余票信息",
+                            "content": "查询{date}{from_station}到{to_station}的高铁票"
+                        },
+                        {
+                            "id": "transfer_template",
+                            "name": "transfer_template",
+                            "title": "中转换乘模板",
+                            "description": "查找需要中转的车次方案",
+                            "content": "查询{from_station}到{to_station}的中转换乘方案"
+                        }
+                    ]
                 }
             }
             return JSONResponse(response)
