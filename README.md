@@ -134,14 +134,14 @@ uv run pytest
 
 ## 📦 镜像发布与拉取
 
-- 镜像仓库：[drfccv/12306-mcp-server](https://hub.docker.com/r/drfccv/12306-mcp-server)
+- 镜像仓库：[drfccv/12306-mcp-server](https://hub.docker.com/r/drfccv/mcp-server-12306)
 - 拉取镜像：
   ```bash
-  docker pull drfccv/12306-mcp-server:latest
+  docker pull drfccv/mcp-server-12306:latest
   ```
 - 运行镜像：
   ```bash
-  docker run -d -p 8000:8000 --name 12306-mcp-server drfccv/12306-mcp-server:latest
+  docker run -d -p 8000:8000 --name 12306-mcp-server drfccv/mcp-server-12306:latest
   ```
 
 ---
