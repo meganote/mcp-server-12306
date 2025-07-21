@@ -31,8 +31,8 @@
 ### 本地一键部署
 ```bash
 # 克隆项目
-git clone https://github.com/drfccv/12306-mcp-server.git
-cd 12306-mcp-server
+git clone https://github.com/drfccv/mcp-server-12306.git
+cd mcp-server-12306
 
 # 安装依赖
 uv sync
@@ -47,10 +47,10 @@ uv run python scripts/start_server.py
 ### Docker 部署
 ```bash
 # 直接拉取已构建镜像
- docker pull drfccv/12306-mcp-server:latest
+ docker pull drfccv/mcp-server-12306:latest
 
 # 运行容器（映射8000端口）
- docker run -d -p 8000:8000 --name 12306-mcp-server drfccv/12306-mcp-server:latest
+ docker run -d -p 8000:8000 --name 12306-mcp-server drfccv/mcp-server-12306:latest
 ```
 
 > 如需自定义开发或本地修改后再打包，可用如下命令自行构建镜像：
