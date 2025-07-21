@@ -50,12 +50,12 @@ uv run python scripts/start_server.py
  docker pull drfccv/mcp-server-12306:latest
 
 # 运行容器（映射8000端口）
- docker run -d -p 8000:8000 --name 12306-mcp-server drfccv/mcp-server-12306:latest
+ docker run -d -p 8000:8000 --name mcp-server-12306 drfccv/mcp-server-12306:latest
 ```
 
 > 如需自定义开发或本地修改后再打包，可用如下命令自行构建镜像：
 > ```bash
-> docker build -t drfccv/12306-mcp-server:latest .
+> docker build -t drfccv/mcp-server-12306:latest .
 > ```
 
 ### 配置
@@ -134,7 +134,7 @@ uv run pytest
 
 ## 📦 镜像发布与拉取
 
-- 镜像仓库：[drfccv/12306-mcp-server](https://hub.docker.com/r/drfccv/mcp-server-12306)
+- 镜像仓库：[drfccv/mcp-server-12306](https://hub.docker.com/r/drfccv/mcp-server-12306)
 - 拉取镜像：
   ```bash
   docker pull drfccv/mcp-server-12306:latest
