@@ -97,7 +97,7 @@ MCP_TOOLS = [
                 "train_date": {"type": "string", "title": "出发日期", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
                 "middle_station": {"type": "string", "title": "中转站（可选）", "description": "指定中转站名称或三字码，可选"},
                 "isShowWZ": {"type": "string", "title": "是否显示无座车次（Y/N）", "description": "Y=显示无座车次，N=不显示，默认N", "default": "N"},
-                "purpose_codes": {"type": "string", "title": "乘客类型（00=普通，0X=学生）", "description": "00为普通，0X为学生，默认00", "default": "00"}
+                "purpose_codes": {"type": "string", "title": "乘客类型（00=普通，0X=学生）", "description": "00为普通，0X为学生，默认00"}
             },
             "required": ["from_station", "to_station", "train_date"],
             "additionalProperties": False
@@ -373,7 +373,55 @@ async def mcp_endpoint_post(request: Request):
                 }
             }
             return JSONResponse(response)
-          # Handle tool execution
+        # 新增 prompts/list 支持
+        elif method == "prompts/list":
+            logger.info("📋 Prompts list requested")
+            response = {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {
+                    "prompts": [
+                        {
+                            "title": "查询余票",
+                            "description": "查询某天某线路的余票信息",
+                            "prompt": "查询明天北京到上海的高铁票"
+                        },
+                        {
+                            "title": "中转换乘",
+                            "description": "查找需要中转的车次方案",
+                            "prompt": "查询北京到广州的中转换乘方案"
+                        },
+                        {
+                            "title": "车站模糊搜索",
+                            "description": "输入拼音、简拼或三字码快速查找车站",
+                            "prompt": "查找南昌的三字码"
+                        },
+                        {
+                            "title": "经停站查询",
+                            "description": "查询某车次的所有经停站和时刻表",
+                            "prompt": "查询G1234的经停站"
+                        },
+                        {
+                            "title": "获取当前时间",
+                            "description": "获取今天、明天、后天等常用日期",
+                            "prompt": "现在的日期和明天的日期"
+                        }
+                    ]
+                }
+            }
+            return JSONResponse(response)
+        # 新增 resources/list 支持
+        elif method == "resources/list":
+            logger.info("📋 Resources list requested")
+            response = {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {
+                    "resources": []  # 可根据需要返回实际资源
+                }
+            }
+            return JSONResponse(response)
+        # Handle tool execution
         elif method == "tools/call":
             tool_name = params.get("name")
             arguments = params.get("arguments", {})
@@ -521,6 +569,14 @@ async def mcp_endpoint_delete(request: Request):
             status_code=404
         )
 
+# 新增 /sse 路由，兼容部分客户端
+@app.get("/sse")
+async def sse_endpoint():
+    async def event_generator():
+        while True:
+            await asyncio.sleep(30)
+            yield f"data: ping {datetime.now().isoformat()}\n\n"
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 # 车站名/三字码自动转换
 async def ensure_telecode(val):
@@ -1128,74 +1184,20 @@ async def query_transfer_validated(args: dict) -> list:
 # ========== get_current_time_validated 新增时间工具 ==========
 async def get_current_time_validated(args: dict) -> list:
     """
-    获取当前时间和相对日期信息，帮助用户准确选择出行日期。
-    支持常用相对日期计算，如明天、后天等。
+    只返回当前时间（YYYY-MM-DD HH:mm:ss），不返回相对日期、周几等。
     """
     try:
-        from datetime import datetime, timedelta
-        import calendar
-        
-        # 获取参数
+        from datetime import datetime
+        import pytz
         timezone_str = args.get("timezone", "Asia/Shanghai")
-        date_format = args.get("format", "YYYY-MM-DD")
-        
-        # 获取指定时区的当前时间
         try:
             tz = pytz.timezone(timezone_str)
             now = datetime.now(tz)
-            utc_now = datetime.utcnow()
         except pytz.exceptions.UnknownTimeZoneError:
-            # 如果时区无效，回退到Asia/Shanghai
             tz = pytz.timezone("Asia/Shanghai")
             now = datetime.now(tz)
-            utc_now = datetime.utcnow()
-            timezone_str = "Asia/Shanghai"
-        
-        today = now.date()
-        
-        # 计算相对日期
-        tomorrow = today + timedelta(days=1)
-        day_after_tomorrow = today + timedelta(days=2)
-        next_week = today + timedelta(days=7)
-        next_weekend = today + timedelta(days=(5 - today.weekday()) % 7 + 1)  # 下个周六
-        
-        # 获取星期几信息
-        weekdays = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
-        today_weekday = weekdays[today.weekday()]
-        tomorrow_weekday = weekdays[tomorrow.weekday()]
-        
-        # 构建输出文本
-        text = f"📅 **当前时间信息** ({timezone_str})\n\n"
-        text += f"🕐 **当前时间:** {now.strftime('%Y年%m月%d日 %H:%M:%S %Z')}\n"
-        text += f"📆 **今天:** {today.strftime('%Y-%m-%d')} ({today_weekday})\n"
-        text += f"🌐 **UTC时间:** {utc_now.strftime('%Y-%m-%d %H:%M:%S UTC')}\n\n"
-        
-        text += f"🔮 **常用相对日期:**\n"
-        text += f"• **明天:** `{tomorrow.strftime('%Y-%m-%d')}` ({tomorrow_weekday})\n"
-        text += f"• **后天:** `{day_after_tomorrow.strftime('%Y-%m-%d')}` ({weekdays[day_after_tomorrow.weekday()]})\n"
-        text += f"• **下周同一天:** `{next_week.strftime('%Y-%m-%d')}` ({weekdays[next_week.weekday()]})\n"
-        text += f"• **下个周末:** `{next_weekend.strftime('%Y-%m-%d')}` ({weekdays[next_weekend.weekday()]})\n\n"
-        
-        # 未来一周的日期
-        text += f"📋 **未来一周日期:**\n"
-        for i in range(1, 8):
-            future_date = today + timedelta(days=i)
-            future_weekday = weekdays[future_date.weekday()]
-            day_name = {
-                1: "明天",
-                2: "后天", 
-                3: "大后天"
-            }.get(i, f"第{i}天")
-            text += f"• **{day_name}:** `{future_date.strftime('%Y-%m-%d')}` ({future_weekday})\n"
-        
-        text += f"\n💡 **使用提示:**\n"
-        text += f"• 复制上面的日期格式（如 `{tomorrow.strftime('%Y-%m-%d')}`）到火车票查询中\n"
-        text += f"• 12306系统支持提前14天购票\n"
-        text += f"• 节假日和周末车票较为紧张，建议提前规划\n"
-        text += f"• 当前使用时区: {timezone_str}"
-        
+        text = now.strftime("%Y-%m-%d %H:%M:%S") + f" {tz.zone}"
         return [{"type": "text", "text": text}]
-        
     except Exception as e:
         logger.error(f"❌ 获取时间信息失败: {repr(e)}")
         return [{"type": "text", "text": f"❌ **获取时间信息失败:** {repr(e)}"}]

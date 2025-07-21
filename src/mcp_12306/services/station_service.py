@@ -61,7 +61,7 @@ class StationService:
             def is_pinyin(val):
                 return val.isalpha() and val.islower() and len(val) >= 2
             def is_py_short(val):
-                return val.isalpha() and val.islower() and 1 <= len(val) <= 4
+                return val.isalpha() and val.islower() and 1 <= len(val) <= 8
             if not is_code(code):
                 found = False
                 for idx in range(1, min(5, len(parts))):
@@ -98,6 +98,8 @@ class StationService:
 
     async def get_station_by_name(self, name):
         name = name.strip()
+        if name.endswith("站") and len(name) > 2:
+            name = name[:-1]
         for s in self.stations:
             if s.name.strip() == name:
                 return s
@@ -110,8 +112,9 @@ class StationService:
         return None
 
     async def search_stations(self, query, limit=10):
-        """优先精确匹配（name/code/pinyin/py_short），再补充模糊匹配（含city）"""
         query = query.strip().lower()
+        if query.endswith("站") and len(query) > 2:
+            query = query[:-1]
         results = []
         matched_ids = set()
         # 1. 精确匹配
@@ -139,13 +142,12 @@ class StationService:
         return StationSearchResult(results)
 
     async def get_station_code(self, query: str) -> Optional[str]:
-        """
-        只允许 name（中文全名）或 code（三字码，大写）精确匹配，返回三字码。
-        禁止拼音、简拼、模糊等任何其他匹配。
-        """
         if not query:
             return None
         q = query.strip()
+        # 兼容“站”
+        if q.endswith("站") and len(q) > 2:
+            q = q[:-1]
         # 1. 精确匹配 name（区分大小写，通常为中文）
         for s in self.stations:
             if q == s.name:
