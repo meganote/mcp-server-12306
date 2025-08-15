@@ -10,7 +10,7 @@ COPY README.md ./
 
 # 安装依赖（推荐使用pip，如果你用poetry可自行调整）
 RUN pip install --upgrade pip && \
-    pip install uv && \
+    pip install uv hatchling && \
     uv sync
 
 # 复制项目代码
