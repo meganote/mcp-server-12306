@@ -8,9 +8,17 @@ from pathlib import Path
 # 添加项目根目录到Python路径
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
+# 导入配置
+try:
+    from mcp_12306.utils.config import get_settings
+    settings = get_settings()
+    log_level = getattr(logging, settings.log_level.upper(), logging.INFO)
+except Exception:
+    log_level = logging.INFO
+
 # 配置日志
 logging.basicConfig(
-    level=logging.INFO,
+    level=log_level,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 
