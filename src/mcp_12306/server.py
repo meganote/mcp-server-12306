@@ -21,13 +21,13 @@ from .services.http_client import HttpClient
 from .utils.config import get_settings
 from .utils.date_utils import validate_date
 
+settings = get_settings()
+
 logging.basicConfig(
-    level=logging.INFO,
+    level=getattr(logging, settings.log_level.upper(), logging.INFO),
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
-
-settings = get_settings()
 station_service = StationService()
 ticket_service = TicketService()
 http_client = HttpClient()
@@ -156,7 +156,8 @@ MCP_TOOLS = [
 app = FastAPI(
     title="12306 MCP Server",
     version="1.0.0",
-    description="基于MCP协议(2025-03-26 Streamable HTTP)的12306火车票查询服务，支持直达、过站和换乘查询"
+    description="基于MCP协议(2025-03-26 Streamable HTTP)的12306火车票查询服务，支持直达、过站和换乘查询",
+    debug=settings.debug
 )
 
 app.add_middleware(
@@ -1250,14 +1251,14 @@ async def main_server():
     logger.info("🚀 启动12306 MCP服务器...")
     logger.info(f"📋 协议版本: {MCP_PROTOCOL_VERSION}")
     logger.info(f"🚄 传输类型: Streamable HTTP")
-    logger.info(f"📡 MCP端点: http://localhost:8000/mcp")
-    logger.info(f"📚 健康检查: http://localhost:8000/health")
+    logger.info(f"📡 MCP端点: http://{settings.server_host}:{settings.server_port}/mcp")
+    logger.info(f"📚 健康检查: http://{settings.server_host}:{settings.server_port}/health")
     
     config = uvicorn.Config(
         app,
-        host="0.0.0.0",
-        port=8000,
-        log_level="info"
+        host=settings.server_host,
+        port=settings.server_port,
+        log_level=settings.log_level.lower()
     )
     uvicorn_server = uvicorn.Server(config)
     await uvicorn_server.serve()
