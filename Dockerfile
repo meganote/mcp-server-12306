@@ -17,4 +17,4 @@ RUN uv sync
 ENV TZ=Asia/Shanghai
 EXPOSE 8000
 
-CMD ["uv", "run", "python", "-m", "mcp_12306.server"]
+CMD ["uv", "run", "--no-sync", "python", "-m", "mcp_12306.server"]
