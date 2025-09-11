@@ -720,7 +720,7 @@ async def query_tickets_validated(args: dict) -> list:
             "Host": "kyfw.12306.cn",
             "Accept": "application/json, text/javascript, */*; q=0.01"
         }
-        async with httpx.AsyncClient(follow_redirects=False, timeout=8, verify=False) as client:
+        async with httpx.AsyncClient(follow_redirects=True, timeout=8, verify=False) as client:
             await client.get(url_init, headers=headers)
             params = {
                 "leftTicketDTO.train_date": train_date,
@@ -826,7 +826,7 @@ async def get_train_no_by_train_code_validated(args: dict) -> list:
         "Host": "kyfw.12306.cn",
         "Accept": "application/json, text/javascript, */*; q=0.01"
     }
-    async with httpx.AsyncClient(follow_redirects=False, timeout=8, verify=False) as client:
+    async with httpx.AsyncClient(follow_redirects=True, timeout=8, verify=False) as client:
         await client.get(url_init, headers=headers)
         params = {
             "leftTicketDTO.train_date": train_date,
@@ -972,7 +972,7 @@ async def get_train_route_stations_validated(args: dict) -> list:
             "Origin": "https://kyfw.12306.cn"
         }
         
-        async with httpx.AsyncClient(follow_redirects=False, timeout=8, verify=False) as client:
+        async with httpx.AsyncClient(follow_redirects=True, timeout=8, verify=False) as client:
             # 先访问init获取cookie
             init_resp = await client.get("https://kyfw.12306.cn/otn/leftTicket/init", headers=headers)
             logger.info(f"12306 init status: {init_resp.status_code}")
@@ -1092,7 +1092,7 @@ async def query_transfer_validated(args: dict) -> list:
         }
         
         all_transfer_list = []
-        async with httpx.AsyncClient(follow_redirects=False, timeout=8, verify=False) as client:
+        async with httpx.AsyncClient(follow_redirects=True, timeout=8, verify=False) as client:
             # 先访问init获取cookie
             await client.get(url_init, headers=headers)
             
@@ -1268,3 +1268,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
