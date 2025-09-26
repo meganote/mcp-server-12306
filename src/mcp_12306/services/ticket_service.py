@@ -34,8 +34,8 @@ class TicketService:
                     total=0
                 )
                 
-            # 构建查询URL
-            url = "https://kyfw.12306.cn/otn/leftTicket/query"
+            # 构建查询URL - 使用硬编码的queryG地址
+            url = "https://kyfw.12306.cn/otn/leftTicket/queryG"
             params = {
                 'leftTicketDTO.train_date': query.train_date,
                 'leftTicketDTO.from_station': from_code,
