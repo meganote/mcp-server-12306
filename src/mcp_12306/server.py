@@ -713,7 +713,7 @@ async def query_tickets_validated(args: dict) -> list:
             return [{"type": "text", "text": "❌ 车站名称无效，请检查输入。" + suggest_text + "\n\n💡 可尝试拼音、简拼、三字码或用 search_stations 工具辅助查询。"}]
         import httpx
         url_init = "https://kyfw.12306.cn/otn/leftTicket/init"
-        url_u = "https://kyfw.12306.cn/otn/leftTicket/queryU"
+        url_u = "https://kyfw.12306.cn/otn/leftTicket/queryG"
         headers = {
             "User-Agent": USER_AGENT,
             "Referer": "https://kyfw.12306.cn/otn/leftTicket/init",
@@ -729,7 +729,7 @@ async def query_tickets_validated(args: dict) -> list:
                 "purpose_codes": "ADULT"
             }
             resp = await client.get(url_u, headers=headers, params=params)
-            logger.info(f"12306 queryU status: {resp.status_code}, url: {resp.url}")
+            logger.info(f"12306 queryG status: {resp.status_code}, url: {resp.url}")
             if resp.status_code != 200:
                 logger.error(f"12306接口返回异常: {resp.status_code}, body: {resp.text}")
                 return [{"type": "text", "text": f"❌ 12306接口返回异常: {resp.status_code}\n{resp.text}"}]
@@ -793,7 +793,7 @@ async def get_train_no_by_train_code_validated(args: dict) -> list:
     """
     根据车次号、出发站、到达站、日期，查询唯一列车编号train_no。
     只允许精确匹配，所有参数必须为全名或三字码。
-    直接请求 /otn/leftTicket/queryU。
+    直接请求 /otn/leftTicket/queryG。
     """
     train_code = args.get("train_code", "").strip().upper()
     from_station = args.get("from_station", "").strip().upper()
@@ -819,7 +819,7 @@ async def get_train_no_by_train_code_validated(args: dict) -> list:
         to_station = code
     import httpx
     url_init = "https://kyfw.12306.cn/otn/leftTicket/init"
-    url_u = "https://kyfw.12306.cn/otn/leftTicket/queryU"
+    url_u = "https://kyfw.12306.cn/otn/leftTicket/queryG"
     headers = {
         "User-Agent": USER_AGENT,
         "Referer": "https://kyfw.12306.cn/otn/leftTicket/init",
@@ -1079,7 +1079,7 @@ async def query_transfer_validated(args: dict) -> list:
         
         # 使用参考代码的完整分页查询逻辑
         url_init = "https://kyfw.12306.cn/otn/leftTicket/init"
-        url = "https://kyfw.12306.cn/lcquery/queryU"
+        url = "https://kyfw.12306.cn/otn/leftTicket/queryG"
         headers = {
             "User-Agent": USER_AGENT,
             "Referer": "https://kyfw.12306.cn/otn/leftTicket/init",
